@@ -1,7 +1,7 @@
 "use client";
 
 import { Images1Icon } from "@fingertip/icons";
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ImageComparison } from "@/components/ui/image-comparison";
 import { Skeleton } from "@/components/ui/skeleton";
 

@@ -8,14 +8,14 @@ import {
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { AppSidebar } from "@/components/app-sidebar";
-import { CanvasPreview } from "@/components/dither/canvas-preview";
-import { ControlsPanel } from "@/components/dither/controls-panel";
+import { AsciiControlsPanel } from "@/components/ascii/controls-panel";
+import { CanvasPreview } from "@/components/preview/canvas-preview";
 import { Button } from "@/components/ui/button";
 import { SidebarInset } from "@/components/ui/sidebar";
-import { useDither } from "@/hooks/use-dither";
+import { useAscii } from "@/hooks/use-ascii";
 import { cn } from "@/lib/utils";
 
-export default function DitherPage() {
+export default function AsciiPage() {
   const {
     uploadedImage,
     ditheredImage,
@@ -24,7 +24,7 @@ export default function DitherPage() {
     originalDimensions,
     setUploadedImage,
     updateParameters,
-  } = useDither();
+  } = useAscii();
 
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
@@ -50,16 +50,16 @@ export default function DitherPage() {
       return;
     }
 
-    // Generate filename from original with -dithered suffix
-    let filename = "dithered-image.png";
+    // Generate filename from original with -ascii suffix
+    let filename = "ascii-image.png";
     if (uploadedImage?.name) {
       const lastDotIndex = uploadedImage.name.lastIndexOf(".");
       if (lastDotIndex > 0) {
         const nameWithoutExt = uploadedImage.name.substring(0, lastDotIndex);
         const ext = uploadedImage.name.substring(lastDotIndex);
-        filename = `${nameWithoutExt}-dithered${ext}`;
+        filename = `${nameWithoutExt}-ascii${ext}`;
       } else {
-        filename = `${uploadedImage.name}-dithered.png`;
+        filename = `${uploadedImage.name}-ascii.png`;
       }
     }
 
@@ -84,7 +84,6 @@ export default function DitherPage() {
       link.href = url;
       link.download = filename;
       link.click();
-
 
       URL.revokeObjectURL(url);
 
@@ -111,7 +110,7 @@ export default function DitherPage() {
       <SidebarInset className="flex flex-col">
         {/* Mobile header */}
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4 md:hidden">
-          <h1 className="flex-1 font-semibold text-sm">Blue noise</h1>
+          <h1 className="flex-1 font-semibold text-sm">ASCII</h1>
           <Button
             aria-label={uploadedImage ? "Upload new image" : "Upload image"}
             onClick={open}
@@ -183,9 +182,7 @@ export default function DitherPage() {
               className="flex w-full flex-col items-center justify-start gap-6 p-4 md:flex-1 md:items-center md:justify-center"
               id="main-content"
             >
-              <h1 className="sr-only">
-                Blue Noise Dither - Professional Image Dithering Tool
-              </h1>
+              <h1 className="sr-only">ASCII - ASCII Image Rendering Tool</h1>
               <CanvasPreview
                 ditheredImage={ditheredImage}
                 isProcessing={isProcessing}
@@ -197,7 +194,7 @@ export default function DitherPage() {
 
           <section className="w-full border-border border-t bg-background px-4 py-6 md:hidden">
             <div className="mx-auto w-full max-w-2xl">
-              <ControlsPanel
+              <AsciiControlsPanel
                 disabled={!uploadedImage}
                 onParametersChange={updateParameters}
                 originalDimensions={originalDimensions}

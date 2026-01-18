@@ -1,6 +1,6 @@
 "use client";
 
-import { ControlsPanel } from "@/components/dither/controls-panel";
+import { AsciiControlsPanel } from "@/components/ascii/controls-panel";
 import {
   Sidebar,
   SidebarContent,
@@ -8,13 +8,13 @@ import {
   SidebarGroupContent,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import type { DitherParameters } from "@/lib/dither/types";
+import type { AsciiParameters } from "@/hooks/use-ascii";
 
 interface AppSidebarProps {
   uploadedImage: File | null;
-  parameters: DitherParameters;
+  parameters: AsciiParameters;
   originalDimensions?: { width: number; height: number } | null;
-  onParametersChange: (params: Partial<DitherParameters>) => void;
+  onParametersChange: (params: Partial<AsciiParameters>) => void;
 }
 
 export function AppSidebar({
@@ -30,16 +30,16 @@ export function AppSidebar({
           className="font-bold text-xl tracking-tight md:text-2xl"
           style={{ textWrap: "balance" }}
         >
-          Blue noise
+          ASCII
         </h1>
         <p className="text-sm leading-[1.6]" style={{ textWrap: "pretty" }}>
-          Apply high-quality blue noise dithering to your images
+          Apply high-quality ASCII rendering to your images
         </p>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent className="py-3">
-            <ControlsPanel
+            <AsciiControlsPanel
               disabled={!uploadedImage}
               onParametersChange={onParametersChange}
               originalDimensions={originalDimensions}

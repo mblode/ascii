@@ -4,12 +4,12 @@ import { SidebarProviderWrapper } from "@/components/providers/sidebar-provider-
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://blue-noise.blode.co"),
-  title: "Blue Noise Dither - High-Quality Image Dithering Tool",
+  metadataBase: new URL("https://ascii.blode.co"),
+  title: "ASCII - High-Quality Image Rendering Tool",
   description:
-    "Apply professional blue noise dithering to your images online. Free, fast, client-side image processing tool with real-time preview. Convert images to artistic halftone patterns.",
+    "Apply professional ASCII rendering to your images online. Free, fast, client-side image processing tool with real-time preview. Convert images to artistic halftone patterns.",
   keywords: [
-    "blue noise",
+    "ASCII",
     "dithering",
     "image processing",
     "image converter",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "ordered dithering",
     "image dither tool",
     "online image processor",
-    "blue noise algorithm",
+    "ASCII rendering algorithm",
   ],
   authors: [{ name: "Matthew Blode", url: "https://blode.co" }],
   creator: "Matthew Blode",
@@ -29,25 +29,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://blue-noise.blode.co",
-    title: "Blue Noise Dither - High-Quality Image Dithering Tool",
+    url: "https://ascii.blode.co",
+    title: "ASCII - High-Quality Image Rendering Tool",
     description:
-      "Apply professional blue noise dithering to your images online. Free, fast, and client-side image processing tool with real-time preview.",
-    siteName: "Blue Noise Dither",
+      "Apply professional ASCII rendering to your images online. Free, fast, and client-side image processing tool with real-time preview.",
+    siteName: "ASCII",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Blue Noise Dither - Image Processing Tool",
+        alt: "ASCII - Image Processing Tool",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blue Noise Dither - High-Quality Image Dithering Tool",
+    title: "ASCII - High-Quality Image Rendering Tool",
     description:
-      "Apply professional blue noise dithering to your images online. Free, fast, client-side processing.",
+      "Apply professional ASCII rendering to your images online. Free, fast, client-side processing.",
     images: ["/og-image.png"],
     creator: "@mattblode",
   },
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   category: "technology",
   appleWebApp: {
     capable: true,
-    title: "Blue noise",
+    title: "ASCII",
     statusBarStyle: "default",
   },
 };
@@ -87,11 +87,11 @@ export const viewport: Viewport = {
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: "Blue Noise Dither",
-  alternateName: "Blue Noise Image Dithering Tool",
+  name: "ASCII",
+  alternateName: "ASCII Image Rendering Tool",
   description:
-    "Professional blue noise dithering application for high-quality image processing. Apply ordered dithering with real-time preview.",
-  url: "https://blue-noise.blode.co",
+    "Professional ASCII rendering application for high-quality image processing. Apply ASCII rendering with real-time preview.",
+  url: "https://ascii.blode.co",
   applicationCategory: "MultimediaApplication",
   operatingSystem: "Web Browser",
   offers: {
@@ -101,9 +101,9 @@ const structuredData = {
   },
   browserRequirements:
     "Requires JavaScript. Modern browser with Canvas API support.",
-  screenshot: "https://blue-noise.blode.co/og-image.png",
+  screenshot: "https://ascii.blode.co/og-image.png",
   featureList: [
-    "Blue noise dithering",
+    "ASCII rendering",
     "Real-time preview",
     "Client-side processing",
     "Multiple noise texture sizes",
@@ -129,7 +129,7 @@ export default function RootLayout({
   return (
     <html className="h-full" lang="en" style={{ colorScheme: "light dark" }}>
       <head>
-        <meta content="Blue noise" name="apple-mobile-web-app-title" />
+        <meta content="ASCII" name="apple-mobile-web-app-title" />
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: Static Schema.org structured data
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

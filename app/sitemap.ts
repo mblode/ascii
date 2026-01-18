@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://blue-noise.blode.co";
+  const baseUrl = "https://ascii.blode.co";
 
   return [
     {

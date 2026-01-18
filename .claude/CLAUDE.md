@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Blue Noise Dither is a Next.js 16 web application that applies high-quality blue noise dithering to images. It's a client-side image processing tool built with React 19, TypeScript, and Tailwind CSS v4.
+ASCII is a Next.js 16 web application that applies high-quality ASCII rendering to images. It's a client-side image processing tool built with React 19, TypeScript, and Tailwind CSS v4.
 
 ## Development Commands
 
@@ -39,19 +39,6 @@ See AGENTS.md for detailed code standards (type safety, React patterns, accessib
     - `canvas-preview.tsx`: Side-by-side image preview
     - `download-button.tsx`: Export dithered result
 
-- **Core Logic** (`lib/dither/`):
-  - `types.ts`: TypeScript interfaces for `DitherParameters`, `NoiseTexture`, `RGB`
-  - `core.ts`: Main dithering algorithm (`applyDither` function)
-    - Loads and resizes images using Canvas API
-    - Converts to grayscale
-    - Applies blue noise threshold algorithm
-  - `utils.ts`: Helper functions (hex color conversion, contrast adjustment, wrapping)
-
-- **Noise Textures** (`lib/noise/textures.ts`):
-  - Pre-baked blue noise textures embedded as base64 data URLs (64×64, 128×128, 256×256)
-  - `loadNoiseTexture()` converts data URLs to `NoiseTexture` objects
-  - Large file (~292KB) due to embedded base64 images
-
 - **Custom Hooks** (`hooks/`):
   - `use-dither.ts`: Core state management for the dithering workflow
     - Manages uploaded image, parameters, and processing state
@@ -68,18 +55,6 @@ See AGENTS.md for detailed code standards (type safety, React patterns, accessib
 - **Radix UI** for accessible component primitives
 - **react-hook-form** + **Zod** for form validation
 - **Sonner** for toast notifications
-
-### Dithering Algorithm
-
-The core algorithm (in `lib/dither/core.ts:60-140`) implements ordered dithering with blue noise:
-
-1. Load and optionally resize the input image
-2. Apply contrast adjustment if specified
-3. Convert to grayscale (simple RGB average)
-4. For each pixel, compare grayscale value to corresponding blue noise threshold
-5. Output foreground or background color based on comparison
-
-Blue noise textures are tiled using a wrap function to handle images larger than the noise texture.
 
 ## Important Notes
 

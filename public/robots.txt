@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://blue-noise.blode.co/sitemap.xml
+Sitemap: https://ascii.blode.co/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 0

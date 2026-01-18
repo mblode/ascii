@@ -1,7 +1,7 @@
 {
-  "name": "Blue Noise Dither",
-  "short_name": "Blue Noise",
-  "description": "Apply professional blue noise dithering to your images online. Free, fast, client-side image processing tool.",
+  "name": "ASCII",
+  "short_name": "ASCII",
+  "description": "Apply professional ASCII rendering to your images online. Free, fast, client-side image processing tool.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
