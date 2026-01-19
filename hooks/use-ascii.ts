@@ -85,7 +85,7 @@ const toRenderOptions = (
     ),
     cellWidth,
     cellHeight,
-    font: { size: fontSize },
+    font: { family: "Courier New, Courier, monospace", size: fontSize },
     maxWidth: null,
     sampleCount: 3,
     output: "both",
