@@ -9,19 +9,19 @@ import type { AsciiParameters } from "@/hooks/use-ascii";
 interface AsciiControlsPanelProps {
   parameters: AsciiParameters;
   onParametersChange: (params: Partial<AsciiParameters>) => void;
-  originalDimensions?: { width: number; height: number } | null;
+  renderDimensions?: { width: number; height: number } | null;
   disabled?: boolean;
 }
 
 export function AsciiControlsPanel({
   parameters,
   onParametersChange,
-  originalDimensions,
+  renderDimensions,
   disabled,
 }: AsciiControlsPanelProps) {
   const contrastValue = useMemo(
-    () => [parameters.contrast],
-    [parameters.contrast]
+    () => [parameters.contrastExponent],
+    [parameters.contrastExponent]
   );
   const columnsValue = useMemo(
     () => [parameters.columns],
@@ -29,12 +29,12 @@ export function AsciiControlsPanel({
   );
 
   // Calculate rows for display (columns is now the direct control)
-  const cellWidth = originalDimensions
-    ? Math.floor(originalDimensions.width / parameters.columns)
+  const cellWidth = renderDimensions
+    ? Math.floor(renderDimensions.width / parameters.columns)
     : 8;
   const cellHeight = Math.round(cellWidth * 1.75);
-  const gridRows = originalDimensions
-    ? Math.floor(originalDimensions.height / cellHeight)
+  const gridRows = renderDimensions
+    ? Math.floor(renderDimensions.height / cellHeight)
     : null;
 
   return (
@@ -58,16 +58,17 @@ export function AsciiControlsPanel({
 
         <div className="space-y-2">
           <Label htmlFor="contrast">
-            Contrast: {Math.round(parameters.contrast)}
+            Contrast exponent: {parameters.contrastExponent.toFixed(1)}
           </Label>
           <Slider
             disabled={disabled}
             id="contrast"
-            max={100}
-            min={-100}
-            onValueChange={([value]) => onParametersChange({ contrast: value })}
-            showOrigin
-            step={5}
+            max={4}
+            min={1}
+            onValueChange={([value]) =>
+              onParametersChange({ contrastExponent: value })
+            }
+            step={0.1}
             value={contrastValue}
           />
         </div>
@@ -90,6 +91,10 @@ export function AsciiControlsPanel({
             More columns = more detail
             {gridRows &&
               `. Output: ${parameters.columns} × ${gridRows} characters`}
+          </p>
+          <p className="text-muted-foreground text-xs leading-[1.6]">
+            Preview/output is capped at 1400px on the longest edge for
+            performance.
           </p>
         </div>
       </div>

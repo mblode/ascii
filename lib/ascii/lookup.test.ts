@@ -363,7 +363,7 @@ describe("createCharacterLookup", () => {
       { char: ".", vector: [0.5, 0.5, 0.5] }, // Normalized: 50/100 = 0.5
       { char: "#", vector: [1, 1, 1] }, // Normalized: 100/100 = 1
     ],
-    maxValues: [100, 100, 100],
+    maxValues: [1, 1, 1],
     charset: [" ", ".", "#"],
     font: { family: "monospace", size: 12 },
     cellWidth: 8,
@@ -375,11 +375,10 @@ describe("createCharacterLookup", () => {
     },
   };
 
-  it("should create a lookup function that normalizes and caches", () => {
+  it("should create a lookup function that caches", () => {
     const lookup = createCharacterLookup(characterSet);
 
-    // Raw vector [50, 50, 50] should normalize to [0.5, 0.5, 0.5]
-    const char = lookup([50, 50, 50]);
+    const char = lookup([0.5, 0.5, 0.5]);
     expect(char).toBe(".");
   });
 
@@ -387,20 +386,20 @@ describe("createCharacterLookup", () => {
     const lookup = createCharacterLookup(characterSet);
 
     expect(lookup([0, 0, 0])).toBe(" ");
-    expect(lookup([100, 100, 100])).toBe("#");
+    expect(lookup([1, 1, 1])).toBe("#");
   });
 
   it("should use default cache options", () => {
     const lookup = createCharacterLookup(characterSet);
 
     // Call same quantized vector multiple times
-    lookup([10, 10, 10]);
-    lookup([12, 12, 12]); // Should be same quantized bin with default levels
-    lookup([50, 50, 50]);
-    lookup([52, 52, 52]); // Should be same bin
+    lookup([0.1, 0.1, 0.1]);
+    lookup([0.12, 0.12, 0.12]); // Should be same quantized bin with default levels
+    lookup([0.5, 0.5, 0.5]);
+    lookup([0.52, 0.52, 0.52]); // Should be same bin
 
     // Hard to test cache hits without exposing internals, but at least verify it works
-    expect(lookup([100, 100, 100])).toBe("#");
+    expect(lookup([1, 1, 1])).toBe("#");
   });
 
   it("should use custom cache options", () => {
@@ -409,8 +408,8 @@ describe("createCharacterLookup", () => {
     });
 
     // With fewer levels, more vectors map to same bin
-    const char1 = lookup([50, 50, 50]);
-    const char2 = lookup([55, 55, 55]);
+    const char1 = lookup([0.5, 0.5, 0.5]);
+    const char2 = lookup([0.55, 0.55, 0.55]);
 
     expect(char1).toBe(".");
     expect(char2).toBe(".");
@@ -419,19 +418,19 @@ describe("createCharacterLookup", () => {
   it("should find nearest character for in-between values", () => {
     const lookup = createCharacterLookup(characterSet);
 
-    // [25, 25, 25] normalized to [0.25, 0.25, 0.25]
+    // [0.25, 0.25, 0.25]
     // Distance to space: 0.1875, distance to dot: 0.1875, distance to hash: 1.6875
     // Equidistant between space and dot, should return first (space)
-    expect(lookup([25, 25, 25])).toBe(" ");
+    expect(lookup([0.25, 0.25, 0.25])).toBe(" ");
 
-    // [75, 75, 75] normalized to [0.75, 0.75, 0.75]
+    // [0.75, 0.75, 0.75]
     // Distance to dot: 0.1875, distance to hash: 0.1875 (equidistant)
     // Returns first match (dot)
-    expect(lookup([75, 75, 75])).toBe(".");
+    expect(lookup([0.75, 0.75, 0.75])).toBe(".");
 
-    // [90, 90, 90] normalized to [0.9, 0.9, 0.9]
+    // [0.9, 0.9, 0.9]
     // Closer to hash than dot
-    expect(lookup([90, 90, 90])).toBe("#");
+    expect(lookup([0.9, 0.9, 0.9])).toBe("#");
   });
 
   it("should work with 6D character set", () => {
@@ -440,7 +439,7 @@ describe("createCharacterLookup", () => {
         { char: " ", vector: [0, 0, 0, 0, 0, 0] }, // Normalized already
         { char: "#", vector: [1, 1, 1, 1, 1, 1] }, // Normalized: 100/100 = 1
       ],
-      maxValues: [100, 100, 100, 100, 100, 100],
+      maxValues: [1, 1, 1, 1, 1, 1],
       charset: [" ", "#"],
       font: { family: "monospace", size: 12 },
       cellWidth: 8,
@@ -454,8 +453,8 @@ describe("createCharacterLookup", () => {
 
     const lookup = createCharacterLookup(charSet6d);
 
-    expect(lookup([10, 10, 10, 10, 10, 10])).toBe(" ");
-    expect(lookup([90, 90, 90, 90, 90, 90])).toBe("#");
-    expect(lookup([50, 50, 50, 50, 50, 50])).toBe(" "); // Equidistant, returns first
+    expect(lookup([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])).toBe(" ");
+    expect(lookup([0.9, 0.9, 0.9, 0.9, 0.9, 0.9])).toBe("#");
+    expect(lookup([0.5, 0.5, 0.5, 0.5, 0.5, 0.5])).toBe(" "); // Equidistant, returns first
   });
 });

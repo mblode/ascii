@@ -165,14 +165,13 @@ export function sampleInternalVector(
     const centerX = cellX + circle.x * layout.cellWidth;
     const centerY = cellY + circle.y * layout.cellHeight;
 
-    // Scale circle radius
+    // Scale circle radius (true circle based on cell height)
     const scaledOffsets = new Float32Array(offsets.length);
-    const radiusX = circle.r * layout.cellWidth;
-    const radiusY = circle.r * layout.cellHeight;
+    const radius = circle.r * layout.cellHeight;
 
     for (let j = 0; j < offsets.length / 2; j++) {
-      scaledOffsets[j * 2] = offsets[j * 2] * radiusX;
-      scaledOffsets[j * 2 + 1] = offsets[j * 2 + 1] * radiusY;
+      scaledOffsets[j * 2] = offsets[j * 2] * radius;
+      scaledOffsets[j * 2 + 1] = offsets[j * 2 + 1] * radius;
     }
 
     const luminance = sampleCircle(
@@ -218,14 +217,13 @@ export function sampleExternalVector(
     const centerX = cellX + circle.x * layout.cellWidth;
     const centerY = cellY + circle.y * layout.cellHeight;
 
-    // Scale circle radius
+    // Scale circle radius (true circle based on cell height)
     const scaledOffsets = new Float32Array(offsets.length);
-    const radiusX = circle.r * layout.cellWidth;
-    const radiusY = circle.r * layout.cellHeight;
+    const radius = circle.r * layout.cellHeight;
 
     for (let j = 0; j < offsets.length / 2; j++) {
-      scaledOffsets[j * 2] = offsets[j * 2] * radiusX;
-      scaledOffsets[j * 2 + 1] = offsets[j * 2 + 1] * radiusY;
+      scaledOffsets[j * 2] = offsets[j * 2] * radius;
+      scaledOffsets[j * 2 + 1] = offsets[j * 2 + 1] * radius;
     }
 
     const luminance = sampleCircle(

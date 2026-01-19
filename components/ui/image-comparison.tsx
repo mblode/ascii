@@ -4,8 +4,8 @@ import { ArrowExpandHorIcon } from "@fingertip/icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ImageComparisonProps {
-  beforeImage: string;
-  afterImage: string;
+  beforeSource: CanvasImageSource;
+  afterImageData: ImageData;
   beforeLabel?: string;
   afterLabel?: string;
   dimensions?: {
@@ -15,21 +15,22 @@ interface ImageComparisonProps {
 }
 
 export function ImageComparison({
-  beforeImage,
-  afterImage,
+  beforeSource,
+  afterImageData,
   beforeLabel = "Original",
   afterLabel = "Dithered",
   dimensions,
 }: ImageComparisonProps) {
   const [sliderPosition, setSliderPosition] = useState(50);
-  const [measuredDimensions, setMeasuredDimensions] = useState<{
-    width: number;
-    height: number;
-  } | null>(dimensions ?? null);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const beforeCanvasRef = useRef<HTMLCanvasElement>(null);
+  const afterCanvasRef = useRef<HTMLCanvasElement>(null);
   const isDraggingRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const latestClientXRef = useRef<number | null>(null);
+
+  const width = dimensions?.width ?? afterImageData.width;
+  const height = dimensions?.height ?? afterImageData.height;
 
   const updateSliderPosition = useCallback((clientX: number) => {
     if (!sliderRef.current) {
@@ -97,40 +98,58 @@ export function ImageComparison({
     };
   }, [onDragging, stopDragging]);
 
-  // Load image dimensions
   useEffect(() => {
-    if (dimensions) {
-      setMeasuredDimensions(dimensions);
+    if (!afterCanvasRef.current) {
       return;
     }
 
-    const img = new Image();
-    img.onload = () => {
-      setMeasuredDimensions({ width: img.width, height: img.height });
-    };
-    img.src = afterImage;
-  }, [afterImage, dimensions]);
+    const canvas = afterCanvasRef.current;
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      return;
+    }
+    ctx.putImageData(afterImageData, 0, 0);
+  }, [afterImageData, height, width]);
 
-  if (!measuredDimensions) {
-    return null;
-  }
+  useEffect(() => {
+    if (!beforeCanvasRef.current) {
+      return;
+    }
+
+    const canvas = beforeCanvasRef.current;
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      return;
+    }
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(beforeSource, 0, 0, width, height);
+  }, [beforeSource, height, width]);
+
+  const aspectRatio = width / height;
 
   return (
     <div
-      className="relative max-h-[90vh] w-full max-w-full overflow-hidden rounded-lg shadow-sm"
+      className="relative mx-auto w-full max-w-full overflow-hidden rounded-lg shadow-sm"
       ref={sliderRef}
       style={{
-        aspectRatio: `${measuredDimensions.width} / ${measuredDimensions.height}`,
+        aspectRatio: `${width} / ${height}`,
+        maxHeight: "90vh",
+        maxWidth: `min(100%, calc(90vh * ${aspectRatio}))`,
       }}
     >
       {/* After Image (Right side - background) */}
       <div className="absolute inset-0">
-        {/* biome-ignore lint/correctness/useImageSize: Dynamic canvas-generated data URL, sized by CSS container */}
-        {/* biome-ignore lint/performance/noImgElement: Client-side generated data URL, cannot use Next Image */}
-        <img
-          alt={afterLabel}
-          className="size-full object-contain [image-rendering:pixelated]"
-          src={afterImage}
+        <canvas
+          aria-label={afterLabel}
+          className="size-full [image-rendering:pixelated]"
+          ref={afterCanvasRef}
+          role="img"
         />
       </div>
 
@@ -141,12 +160,11 @@ export function ImageComparison({
           clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0% 100%)`,
         }}
       >
-        {/* biome-ignore lint/correctness/useImageSize: Dynamic canvas-generated data URL, sized by CSS container */}
-        {/* biome-ignore lint/performance/noImgElement: Client-side generated data URL, cannot use Next Image */}
-        <img
-          alt={beforeLabel}
-          className="size-full object-contain"
-          src={beforeImage}
+        <canvas
+          aria-label={beforeLabel}
+          className="size-full"
+          ref={beforeCanvasRef}
+          role="img"
         />
       </div>
 

@@ -13,14 +13,14 @@ import type { AsciiParameters } from "@/hooks/use-ascii";
 interface AppSidebarProps {
   uploadedImage: File | null;
   parameters: AsciiParameters;
-  originalDimensions?: { width: number; height: number } | null;
+  renderDimensions?: { width: number; height: number } | null;
   onParametersChange: (params: Partial<AsciiParameters>) => void;
 }
 
 export function AppSidebar({
   uploadedImage,
   parameters,
-  originalDimensions,
+  renderDimensions,
   onParametersChange,
 }: AppSidebarProps) {
   return (
@@ -42,8 +42,8 @@ export function AppSidebar({
             <AsciiControlsPanel
               disabled={!uploadedImage}
               onParametersChange={onParametersChange}
-              originalDimensions={originalDimensions}
               parameters={parameters}
+              renderDimensions={renderDimensions}
             />
           </SidebarGroupContent>
         </SidebarGroup>

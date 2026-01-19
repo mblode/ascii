@@ -259,9 +259,8 @@ export const renderAsciiToImageData = (
   // Set up text rendering
   const [fgR, fgG, fgB] = parseColor(foreground);
   ctx.fillStyle = `rgb(${fgR}, ${fgG}, ${fgB})`;
-  // Scale font size proportionally with cell height to fix pixelation
-  const scaledFontSize = Math.round(cellHeight * 0.85);
-  ctx.font = createFontString(font, scaledFontSize);
+  // Use the same font size as the character vector generation
+  ctx.font = createFontString(font);
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 

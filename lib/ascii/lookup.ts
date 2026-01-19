@@ -272,10 +272,9 @@ export function createLookupCache(
  * that maps raw sampling vectors to the nearest character.
  *
  * The returned function:
- * 1. Normalizes the sampling vector using the character set's max values
- * 2. Checks the cache (if enabled) for a quantized match
- * 3. Performs nearest neighbor search if cache misses
- * 4. Caches the result for future lookups
+ * 1. Checks the cache (if enabled) for a quantized match
+ * 2. Performs nearest neighbor search if cache misses
+ * 3. Caches the result for future lookups
  *
  * @param characterSet - Character set with precomputed shape vectors
  * @param cacheOptions - Optional cache configuration (defaults: 10 levels)
@@ -299,7 +298,7 @@ export function createCharacterLookup(
   characterSet: AsciiCharacterSet,
   cacheOptions?: Partial<AsciiLookupCacheOptions>
 ): (samplingVector: number[]) => string {
-  const { characters, maxValues } = characterSet;
+  const { characters } = characterSet;
 
   // Default cache options
   const options: AsciiLookupCacheOptions = {
@@ -310,9 +309,8 @@ export function createCharacterLookup(
   // Create cache if options provided
   const cache = createLookupCache(characters, options);
 
-  // Return lookup function with normalization and caching
+  // Return lookup function with caching
   return (samplingVector: number[]): string => {
-    const normalized = normalizeWithMaxValues(samplingVector, maxValues);
-    return cache.lookup(normalized);
+    return cache.lookup(samplingVector);
   };
 }

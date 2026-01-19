@@ -21,7 +21,8 @@ export default function AsciiPage() {
     ditheredImage,
     isProcessing,
     parameters,
-    originalDimensions,
+    previewCanvas,
+    renderDimensions,
     setUploadedImage,
     updateParameters,
   } = useAscii();
@@ -103,8 +104,8 @@ export default function AsciiPage() {
       </a>
       <AppSidebar
         onParametersChange={updateParameters}
-        originalDimensions={originalDimensions}
         parameters={parameters}
+        renderDimensions={renderDimensions}
         uploadedImage={uploadedImage}
       />
       <SidebarInset className="flex flex-col">
@@ -187,6 +188,7 @@ export default function AsciiPage() {
                 ditheredImage={ditheredImage}
                 isProcessing={isProcessing}
                 onBrowse={open}
+                previewCanvas={previewCanvas}
                 uploadedImage={uploadedImage}
               />
             </main>
@@ -197,8 +199,8 @@ export default function AsciiPage() {
               <AsciiControlsPanel
                 disabled={!uploadedImage}
                 onParametersChange={updateParameters}
-                originalDimensions={originalDimensions}
                 parameters={parameters}
+                renderDimensions={renderDimensions}
               />
             </div>
           </section>

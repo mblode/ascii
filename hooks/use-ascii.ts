@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { renderAscii } from "@/lib/ascii/core";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AsciiRenderOptions, AsciiRenderResult } from "@/lib/ascii/types";
+import { renderAsciiAsync } from "@/lib/ascii/worker-client";
 import { useDebounce } from "./use-debounce";
 
 /**
@@ -11,15 +11,53 @@ import { useDebounce } from "./use-debounce";
 export interface AsciiParameters {
   foreground: string;
   background: string;
-  contrast: number;
+  contrastExponent: number;
   columns: number;
 }
 
 const DEFAULT_PARAMETERS: AsciiParameters = {
   foreground: "#ffffff",
   background: "#000000",
-  contrast: 0,
+  contrastExponent: 2,
   columns: 100,
+};
+
+const MAX_IMAGE_DIMENSION = 1400;
+
+const getScaledDimensions = (
+  width: number,
+  height: number,
+  maxDimension: number
+): { width: number; height: number; scale: number } => {
+  const maxSide = Math.max(width, height);
+  if (maxSide <= maxDimension) {
+    return { width, height, scale: 1 };
+  }
+
+  const scale = maxDimension / maxSide;
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+    scale,
+  };
+};
+
+const loadImageFromFile = (file: File): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = (error) => {
+      URL.revokeObjectURL(url);
+      reject(error);
+    };
+
+    img.src = url;
+  });
 };
 
 /**
@@ -33,18 +71,23 @@ const toRenderOptions = (
   // Derive cell size from target columns
   const cellWidth = Math.max(1, Math.floor(imageWidth / params.columns));
   const cellHeight = Math.round(cellWidth * 1.75);
+  const fontSize = Math.round(cellHeight * 0.85);
 
   return {
     foreground: params.foreground,
     background: params.background,
     brightness: 0,
-    contrast: params.contrast,
-    contrastExponent: 2.0,
-    directionalContrastExponent: 3.0,
+    contrast: 0,
+    contrastExponent: Math.max(1, params.contrastExponent),
+    directionalContrastExponent: Math.min(
+      8,
+      Math.max(1, params.contrastExponent * 2)
+    ),
     cellWidth,
     cellHeight,
+    font: { size: fontSize },
     maxWidth: null,
-    sampleCount: 12,
+    sampleCount: 3,
     output: "both",
   };
 };
@@ -60,66 +103,130 @@ export function useAscii() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [parameters, setParameters] =
     useState<AsciiParameters>(DEFAULT_PARAMETERS);
-  const [originalDimensions, setOriginalDimensions] = useState<{
+  const [renderDimensions, setRenderDimensions] = useState<{
     width: number;
     height: number;
   } | null>(null);
+  const [previewCanvas, setPreviewCanvas] = useState<HTMLCanvasElement | null>(
+    null
+  );
+  const loadRequestIdRef = useRef(0);
+  const renderRequestIdRef = useRef(0);
 
   // Debounce parameters for real-time updates (300ms)
   const debouncedParams = useDebounce(parameters, 300);
 
-  // Process image when parameters or uploaded image changes
+  // Load and scale image when a new file is uploaded.
   useEffect(() => {
     if (!uploadedImage) {
       setAsciiResult(null);
+      setPreviewCanvas(null);
+      setRenderDimensions(null);
+      setIsProcessing(false);
       return;
     }
 
-    const processAscii = async () => {
-      setIsProcessing(true);
+    const requestId = ++loadRequestIdRef.current;
+    renderRequestIdRef.current += 1;
+    setPreviewCanvas(null);
+    setAsciiResult(null);
+    setIsProcessing(true);
 
+    const loadImage = async () => {
       try {
-        // Load image to get original dimensions
-        const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-          const imgEl = new Image();
-          imgEl.onload = () => {
-            URL.revokeObjectURL(imgEl.src);
-            resolve(imgEl);
-          };
-          imgEl.onerror = reject;
-          imgEl.src = URL.createObjectURL(uploadedImage);
-        });
-
-        // Set original dimensions if this is a new image
-        if (!originalDimensions || originalDimensions.width !== img.width) {
-          setOriginalDimensions({ width: img.width, height: img.height });
+        const img = await loadImageFromFile(uploadedImage);
+        if (requestId !== loadRequestIdRef.current) {
+          return;
         }
 
-        // Draw image to canvas to get ImageData
+        const originalWidth = img.naturalWidth || img.width;
+        const originalHeight = img.naturalHeight || img.height;
+        const scaled = getScaledDimensions(
+          originalWidth,
+          originalHeight,
+          MAX_IMAGE_DIMENSION
+        );
+
+        setRenderDimensions((prev) => {
+          if (
+            prev &&
+            prev.width === scaled.width &&
+            prev.height === scaled.height
+          ) {
+            return prev;
+          }
+          return { width: scaled.width, height: scaled.height };
+        });
+
         const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext("2d");
+        canvas.width = scaled.width;
+        canvas.height = scaled.height;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
         if (!ctx) {
           throw new Error("Failed to get canvas context");
         }
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, scaled.width, scaled.height);
 
-        // Apply ASCII rendering with image dimensions
+        if (requestId !== loadRequestIdRef.current) {
+          return;
+        }
+        setPreviewCanvas(canvas);
+      } catch (error) {
+        console.error("Image load error:", error);
+        if (requestId === loadRequestIdRef.current) {
+          setIsProcessing(false);
+        }
+      }
+    };
+
+    loadImage();
+  }, [uploadedImage]);
+
+  // Render ASCII whenever parameters or the scaled source changes.
+  useEffect(() => {
+    if (!previewCanvas) {
+      return;
+    }
+
+    const requestId = ++renderRequestIdRef.current;
+    setIsProcessing(true);
+
+    const processAscii = async () => {
+      try {
+        const ctx = previewCanvas.getContext("2d", {
+          willReadFrequently: true,
+        });
+        if (!ctx) {
+          throw new Error("Failed to get canvas context");
+        }
+
+        const imageData = ctx.getImageData(
+          0,
+          0,
+          previewCanvas.width,
+          previewCanvas.height
+        );
+
         const renderOptions = toRenderOptions(debouncedParams, imageData.width);
-        const result = renderAscii(imageData, renderOptions);
+        const result = await renderAsciiAsync(imageData, renderOptions);
 
+        if (requestId !== renderRequestIdRef.current) {
+          return;
+        }
         setAsciiResult(result);
       } catch (error) {
         console.error("ASCII rendering error:", error);
       } finally {
-        setIsProcessing(false);
+        if (requestId === renderRequestIdRef.current) {
+          setIsProcessing(false);
+        }
       }
     };
 
     processAscii();
-  }, [uploadedImage, debouncedParams, originalDimensions]);
+  }, [debouncedParams, previewCanvas]);
 
   const updateParameters = useCallback((updates: Partial<AsciiParameters>) => {
     setParameters((prev) => ({ ...prev, ...updates }));
@@ -135,7 +242,8 @@ export function useAscii() {
     asciiGrid: asciiResult?.grid ?? null,
     isProcessing,
     parameters,
-    originalDimensions,
+    previewCanvas,
+    renderDimensions,
     setUploadedImage,
     updateParameters,
   };

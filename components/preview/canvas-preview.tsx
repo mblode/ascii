@@ -1,13 +1,14 @@
 "use client";
 
 import { Images1Icon } from "@fingertip/icons";
-import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import type { MouseEvent } from "react";
 import { ImageComparison } from "@/components/ui/image-comparison";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface CanvasPreviewProps {
   uploadedImage: File | null;
   ditheredImage: ImageData | null;
+  previewCanvas: HTMLCanvasElement | null;
   isProcessing: boolean;
   onBrowse?: () => void;
 }
@@ -15,6 +16,7 @@ interface CanvasPreviewProps {
 export function CanvasPreview({
   uploadedImage,
   ditheredImage,
+  previewCanvas,
   isProcessing,
   onBrowse,
 }: CanvasPreviewProps) {
@@ -22,45 +24,9 @@ export function CanvasPreview({
     event.stopPropagation();
     onBrowse?.();
   };
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [ditheredImageUrl, setDitheredImageUrl] = useState<string | null>(null);
   const comparisonDimensions = ditheredImage
     ? { width: ditheredImage.width, height: ditheredImage.height }
     : null;
-
-  // Convert uploaded image to blob URL
-  const originalImageUrl = useMemo(() => {
-    if (!uploadedImage) {
-      return null;
-    }
-    return URL.createObjectURL(uploadedImage);
-  }, [uploadedImage]);
-
-  // Convert dithered ImageData to blob URL
-  useEffect(() => {
-    if (!(ditheredImage && canvasRef.current)) {
-      return;
-    }
-
-    const canvas = canvasRef.current;
-    canvas.width = ditheredImage.width;
-    canvas.height = ditheredImage.height;
-
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.putImageData(ditheredImage, 0, 0);
-      setDitheredImageUrl(canvas.toDataURL("image/png"));
-    }
-  }, [ditheredImage]);
-
-  // Cleanup blob URLs on unmount
-  useEffect(() => {
-    return () => {
-      if (originalImageUrl) {
-        URL.revokeObjectURL(originalImageUrl);
-      }
-    };
-  }, [originalImageUrl]);
 
   if (!uploadedImage) {
     return (
@@ -100,17 +66,17 @@ export function CanvasPreview({
 
   return (
     <div className="relative flex w-full items-center justify-center">
-      {originalImageUrl && ditheredImageUrl ? (
+      {previewCanvas && ditheredImage ? (
         <>
           <section
             aria-label="Image comparison showing original and dithered versions"
             className="data-motion-scale fade-in-0 zoom-in-95 block w-full max-w-full animate-in duration-250 [animation-timing-function:var(--ease-enter)]"
           >
             <ImageComparison
-              afterImage={ditheredImageUrl}
+              afterImageData={ditheredImage}
               afterLabel="Dithered"
-              beforeImage={originalImageUrl}
               beforeLabel="Original"
+              beforeSource={previewCanvas}
               dimensions={comparisonDimensions ?? undefined}
             />
           </section>
@@ -129,7 +95,6 @@ export function CanvasPreview({
           </div>
         )
       )}
-      <canvas className="hidden" ref={canvasRef} />
     </div>
   );
 }

@@ -6,81 +6,13 @@ import type {
 } from "./types";
 
 /**
- * Default ASCII character set ordered by visual density (lightest to darkest).
- * Characters are chosen to provide good coverage of the 6D shape space.
+ * Default ASCII character set using all 95 printable ASCII characters.
+ * Matches Alex Harri's reference set: codepoints 0x20 (space) through 0x7E (~).
  */
-export const DEFAULT_CHARSET: string[] = [
-  " ",
-  ".",
-  "'",
-  "`",
-  "^",
-  '"',
-  ",",
-  ":",
-  ";",
-  "I",
-  "l",
-  "!",
-  "i",
-  ">",
-  "<",
-  "~",
-  "+",
-  "_",
-  "-",
-  "?",
-  "]",
-  "[",
-  "}",
-  "{",
-  "1",
-  ")",
-  "(",
-  "|",
-  "\\",
-  "/",
-  "t",
-  "f",
-  "j",
-  "r",
-  "x",
-  "n",
-  "u",
-  "v",
-  "c",
-  "z",
-  "X",
-  "Y",
-  "U",
-  "J",
-  "C",
-  "L",
-  "Q",
-  "0",
-  "O",
-  "Z",
-  "m",
-  "w",
-  "q",
-  "p",
-  "d",
-  "b",
-  "k",
-  "h",
-  "a",
-  "o",
-  "*",
-  "#",
-  "M",
-  "W",
-  "&",
-  "8",
-  "%",
-  "B",
-  "@",
-  "$",
-];
+export const DEFAULT_CHARSET: string[] = Array.from(
+  { length: 95 },
+  (_, index) => String.fromCharCode(32 + index)
+);
 
 /**
  * Default monospace font specification.
@@ -102,7 +34,7 @@ export const DEFAULT_FONT: AsciiFontSpec = {
  * Layout (internal circles):
  *   [0] [1]   <- top row (slightly lower on left, higher on right)
  *   [2] [3]   <- middle row
- *   [4] [5]   <- bottom row (slightly higher on left, lower on right)
+ *   [4] [5]   <- bottom row (slightly lower on left, higher on right)
  *
  * This staggered arrangement minimizes gaps and captures diagonal features.
  */
@@ -114,34 +46,37 @@ export const DEFAULT_SAMPLING_LAYOUT: AsciiSamplingLayout = {
     { x: 0.75, y: 0.14, r: 0.18 }, // top-right (slightly higher)
     { x: 0.25, y: 0.5, r: 0.18 }, // middle-left
     { x: 0.75, y: 0.5, r: 0.18 }, // middle-right
-    { x: 0.25, y: 0.8, r: 0.18 }, // bottom-left
-    { x: 0.75, y: 0.86, r: 0.18 }, // bottom-right (slightly lower)
+    { x: 0.25, y: 0.86, r: 0.18 }, // bottom-left (slightly lower)
+    { x: 0.75, y: 0.8, r: 0.18 }, // bottom-right
   ],
 
   // External sampling circles (10) for directional contrast enhancement
-  // Positioned outside cell boundaries to detect neighboring regions
+  // Index order is aligned to Alex Harri's widened influence mapping:
+  // 0: top-left-center, 1: top-right-center, 2: top-left, 3: top-right,
+  // 4: left-center, 5: right-center, 6: bottom-left, 7: bottom-right,
+  // 8: bottom-left-center, 9: bottom-right-center
   external: [
-    { x: 0.0, y: 0.0, r: 0.15 }, // 0: top-left corner
-    { x: 0.5, y: -0.15, r: 0.15 }, // 1: top center
-    { x: 1.0, y: 0.0, r: 0.15 }, // 2: top-right corner
-    { x: -0.15, y: 0.5, r: 0.15 }, // 3: left center
-    { x: 1.15, y: 0.5, r: 0.15 }, // 4: right center
-    { x: 0.0, y: 1.0, r: 0.15 }, // 5: bottom-left corner
-    { x: 0.5, y: 1.15, r: 0.15 }, // 6: bottom center
+    { x: 0.25, y: -0.15, r: 0.15 }, // 0: top-left-center
+    { x: 0.75, y: -0.15, r: 0.15 }, // 1: top-right-center
+    { x: 0.0, y: 0.0, r: 0.15 }, // 2: top-left corner
+    { x: 1.0, y: 0.0, r: 0.15 }, // 3: top-right corner
+    { x: -0.15, y: 0.5, r: 0.15 }, // 4: left center
+    { x: 1.15, y: 0.5, r: 0.15 }, // 5: right center
+    { x: 0.0, y: 1.0, r: 0.15 }, // 6: bottom-left corner
     { x: 1.0, y: 1.0, r: 0.15 }, // 7: bottom-right corner
-    { x: 0.25, y: -0.15, r: 0.15 }, // 8: top-left-center
-    { x: 0.75, y: -0.15, r: 0.15 }, // 9: top-right-center
+    { x: 0.25, y: 1.15, r: 0.15 }, // 8: bottom-left-center
+    { x: 0.75, y: 1.15, r: 0.15 }, // 9: bottom-right-center
   ],
 
   // Mapping from internal circles to external circles that influence them
   // Each internal circle is affected by external samples in its direction
   externalInfluence: [
-    [0, 1, 3, 8], // top-left internal <- UL, U, L, top-left-center
-    [1, 2, 4, 9], // top-right internal <- U, UR, R, top-right-center
-    [0, 3, 5], // middle-left internal <- UL, L, DL
-    [2, 4, 7], // middle-right internal <- UR, R, DR
-    [3, 5, 6], // bottom-left internal <- L, DL, D
-    [4, 6, 7], // bottom-right internal <- R, D, DR
+    [0, 1, 2, 4], // top-left internal
+    [0, 1, 3, 5], // top-right internal
+    [2, 4, 6], // middle-left internal
+    [3, 5, 7], // middle-right internal
+    [4, 6, 8, 9], // bottom-left internal
+    [5, 7, 8, 9], // bottom-right internal
   ],
 };
 
@@ -169,11 +104,11 @@ export const DEFAULT_RENDER_OPTIONS: Required<
   cellHeight: 14,
   font: DEFAULT_FONT,
   charset: DEFAULT_CHARSET,
-  sampleCount: 12,
+  sampleCount: 3,
   brightness: 0,
   contrast: 0,
   contrastExponent: 2.0,
-  directionalContrastExponent: 3.0,
+  directionalContrastExponent: 4.0,
   output: "both",
   foreground: "#ffffff",
   background: "#000000",

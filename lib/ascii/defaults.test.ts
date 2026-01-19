@@ -16,15 +16,9 @@ describe("defaults", () => {
       expect(DEFAULT_CHARSET[0]).toBe(" ");
     });
 
-    it("should contain dense characters at end", () => {
-      const lastChars = DEFAULT_CHARSET.slice(-5);
-      expect(lastChars).toContain("@");
-      expect(lastChars).toContain("$");
-    });
-
-    it("should have reasonable length for ASCII art", () => {
-      expect(DEFAULT_CHARSET.length).toBeGreaterThan(30);
-      expect(DEFAULT_CHARSET.length).toBeLessThan(100);
+    it("should contain the full printable ASCII range", () => {
+      expect(DEFAULT_CHARSET).toHaveLength(95);
+      expect(DEFAULT_CHARSET[94]).toBe("~");
     });
 
     it("should contain only unique characters", () => {
@@ -51,6 +45,35 @@ describe("defaults", () => {
 
     it("should have 10 external sampling circles", () => {
       expect(DEFAULT_SAMPLING_LAYOUT.external).toHaveLength(10);
+    });
+
+    it("should keep external sampling order aligned with influence mapping", () => {
+      expect(DEFAULT_SAMPLING_LAYOUT.external[0]).toEqual({
+        x: 0.25,
+        y: -0.15,
+        r: 0.15,
+      });
+      expect(DEFAULT_SAMPLING_LAYOUT.external[1]).toEqual({
+        x: 0.75,
+        y: -0.15,
+        r: 0.15,
+      });
+      expect(DEFAULT_SAMPLING_LAYOUT.external[9]).toEqual({
+        x: 0.75,
+        y: 1.15,
+        r: 0.15,
+      });
+    });
+
+    it("should use widened external influence mapping", () => {
+      expect(DEFAULT_SAMPLING_LAYOUT.externalInfluence).toEqual([
+        [0, 1, 2, 4],
+        [0, 1, 3, 5],
+        [2, 4, 6],
+        [3, 5, 7],
+        [4, 6, 8, 9],
+        [5, 7, 8, 9],
+      ]);
     });
 
     it("should have external influence mapping for each internal circle", () => {
