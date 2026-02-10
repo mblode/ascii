@@ -2,14 +2,18 @@
 
 import { Images1Icon } from "@fingertip/icons";
 import type { MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageComparison } from "@/components/ui/image-comparison";
 import { Skeleton } from "@/components/ui/skeleton";
+
+const HOLD_DELAY_MS = 150;
 
 interface CanvasPreviewProps {
   uploadedImage: File | null;
   ditheredImage: ImageData | null;
   previewCanvas: HTMLCanvasElement | null;
   isProcessing: boolean;
+  showOriginal: boolean;
   onBrowse?: () => void;
 }
 
@@ -18,8 +22,36 @@ export function CanvasPreview({
   ditheredImage,
   previewCanvas,
   isProcessing,
+  showOriginal,
   onBrowse,
 }: CanvasPreviewProps) {
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isHolding, setIsHolding] = useState(false);
+
+  const handlePointerDown = useCallback(() => {
+    holdTimerRef.current = setTimeout(() => {
+      setIsHolding(true);
+    }, HOLD_DELAY_MS);
+  }, []);
+
+  const handlePointerUp = useCallback(() => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    setIsHolding(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current);
+      }
+    };
+  }, []);
+
+  const effectiveShowOriginal = showOriginal || isHolding;
+
   const handleBrowseClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     onBrowse?.();
@@ -68,16 +100,29 @@ export function CanvasPreview({
     <div className="relative flex w-full items-center justify-center">
       {previewCanvas && ditheredImage ? (
         <>
-          <section
-            aria-label="Image comparison showing original and dithered versions"
-            className="data-motion-scale fade-in-0 zoom-in-95 block w-full max-w-full animate-in duration-250 [animation-timing-function:var(--ease-enter)]"
+          <button
+            aria-label="Hold to compare with original"
+            className="data-motion-scale fade-in-0 zoom-in-95 block w-full max-w-full animate-in cursor-pointer touch-manipulation select-none appearance-none border-none bg-transparent p-0 text-left duration-250 [animation-timing-function:var(--ease-enter)] focus-visible:outline-hidden"
+            onContextMenu={(e) => e.preventDefault()}
+            onPointerCancel={handlePointerUp}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            type="button"
           >
             <ImageComparison
               afterImageData={ditheredImage}
               beforeSource={previewCanvas}
               dimensions={comparisonDimensions ?? undefined}
+              showOriginal={effectiveShowOriginal}
             />
-          </section>
+          </button>
+          {effectiveShowOriginal && (
+            <div className="fade-in-0 pointer-events-none absolute inset-0 flex animate-in items-start justify-center pt-4 duration-150">
+              <div className="rounded-full bg-background/90 px-3 py-1.5 font-medium text-sm shadow-sm ring-1 ring-border backdrop-blur-sm">
+                Original
+              </div>
+            </div>
+          )}
           {isProcessing && (
             <div className="fade-in-0 pointer-events-none absolute inset-0 flex animate-in items-center justify-center rounded-lg bg-background/80 duration-200">
               <div className="data-motion-scale fade-in-0 zoom-in-95 animate-in rounded-full bg-background px-3 py-1.5 font-medium text-sm shadow-sm ring-1 ring-border duration-200 [animation-timing-function:var(--ease-enter)]">
