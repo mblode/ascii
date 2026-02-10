@@ -74,8 +74,6 @@ export function CanvasPreview({
           >
             <ImageComparison
               afterImageData={ditheredImage}
-              afterLabel="Dithered"
-              beforeLabel="Original"
               beforeSource={previewCanvas}
               dimensions={comparisonDimensions ?? undefined}
             />
