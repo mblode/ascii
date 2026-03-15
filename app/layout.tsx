@@ -67,6 +67,9 @@ export const metadata: Metadata = {
     icon: [{ url: "/favicon.ico" }, { url: "/icon1.png", type: "image/png" }],
     apple: [{ url: "/apple-icon.png" }],
   },
+  verification: {
+    google: "mFwyBIbXTaKK4uF_NA0MzVWFyY40hPgBjFObg3rje04",
+  },
   category: "technology",
   appleWebApp: {
     capable: true,
