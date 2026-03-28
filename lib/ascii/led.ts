@@ -59,12 +59,12 @@ export const renderLedToImageData = (
       const gb = Math.round(b * 255);
       ctx.fillStyle = `rgb(255, ${gb}, ${gb})`;
 
-      // Full brightness pixels render as a square; dimmer ones as a horizontal bar
+      // Width scales from 50% (red) to 100% (white); full brightness is square
       if (b >= 1) {
         const side = Math.min(maxBarWidth, barHeight);
         ctx.fillRect(x, y, side, side);
       } else {
-        const barWidth = b * maxBarWidth;
+        const barWidth = (0.5 + 0.5 * b) * maxBarWidth;
         ctx.fillRect(x, y, barWidth, barHeight);
       }
     }
