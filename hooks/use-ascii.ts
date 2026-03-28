@@ -78,6 +78,9 @@ const toRenderOptions = (
     fontFamily
   );
 
+  // LED mode uses square cells since it doesn't render text
+  const effectiveCellHeight = params.ledMode ? cellWidth : cellHeight;
+
   return {
     foreground: params.foreground,
     background: params.background,
@@ -89,7 +92,7 @@ const toRenderOptions = (
       Math.max(1, params.contrastExponent * 2)
     ),
     cellWidth,
-    cellHeight,
+    cellHeight: effectiveCellHeight,
     font: { family: fontFamily, size: fontSize },
     maxWidth: null,
     sampleCount: 3,

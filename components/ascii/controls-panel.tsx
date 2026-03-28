@@ -35,7 +35,9 @@ export function AsciiControlsPanel({
   const cellWidth = renderDimensions
     ? Math.floor(renderDimensions.width / displayColumns)
     : 8;
-  const cellHeight = Math.round(cellWidth * 1.75);
+  const cellHeight = parameters.ledMode
+    ? cellWidth
+    : Math.round(cellWidth * 1.75);
   const gridRows = renderDimensions
     ? Math.floor(renderDimensions.height / cellHeight)
     : null;
