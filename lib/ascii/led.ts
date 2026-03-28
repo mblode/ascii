@@ -53,12 +53,14 @@ export const renderLedToImageData = (
         continue;
       }
 
-      const barWidth = b * maxBarWidth;
       const x = col * cellWidth + halfGap;
 
       // Color: red at low brightness, white at full brightness
       const gb = Math.round(b * 255);
       ctx.fillStyle = `rgb(255, ${gb}, ${gb})`;
+
+      // Width scales from 50% (red) to 100% (white); height is always full
+      const barWidth = (0.5 + 0.5 * b) * maxBarWidth;
       ctx.fillRect(x, y, barWidth, barHeight);
     }
   }
