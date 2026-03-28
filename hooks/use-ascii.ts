@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { deriveCellDimensions } from "@/lib/ascii/font-metrics";
 import type { AsciiRenderOptions, AsciiRenderResult } from "@/lib/ascii/types";
 import { renderAsciiAsync } from "@/lib/ascii/worker-client";
 import { useDebounce } from "./use-debounce";
@@ -70,10 +71,12 @@ const toRenderOptions = (
   params: AsciiParameters,
   imageWidth: number
 ): AsciiRenderOptions => {
-  // Derive cell size from target columns
-  const cellWidth = Math.max(1, Math.floor(imageWidth / params.columns));
-  const cellHeight = Math.round(cellWidth * 1.75);
-  const fontSize = Math.round(cellHeight * 0.85);
+  const fontFamily = "Courier New, Courier, monospace";
+  const targetCellWidth = Math.max(1, Math.floor(imageWidth / params.columns));
+  const { cellWidth, cellHeight, fontSize } = deriveCellDimensions(
+    targetCellWidth,
+    fontFamily
+  );
 
   return {
     foreground: params.foreground,
@@ -87,7 +90,7 @@ const toRenderOptions = (
     ),
     cellWidth,
     cellHeight,
-    font: { family: "Courier New, Courier, monospace", size: fontSize },
+    font: { family: fontFamily, size: fontSize },
     maxWidth: null,
     sampleCount: 3,
     output: "both",
