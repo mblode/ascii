@@ -53,13 +53,20 @@ export const renderLedToImageData = (
         continue;
       }
 
-      const barWidth = b * maxBarWidth;
       const x = col * cellWidth + halfGap;
 
       // Color: red at low brightness, white at full brightness
       const gb = Math.round(b * 255);
       ctx.fillStyle = `rgb(255, ${gb}, ${gb})`;
-      ctx.fillRect(x, y, barWidth, barHeight);
+
+      // Full brightness pixels render as a square; dimmer ones as a horizontal bar
+      if (b >= 1) {
+        const side = Math.min(maxBarWidth, barHeight);
+        ctx.fillRect(x, y, side, side);
+      } else {
+        const barWidth = b * maxBarWidth;
+        ctx.fillRect(x, y, barWidth, barHeight);
+      }
     }
   }
 
