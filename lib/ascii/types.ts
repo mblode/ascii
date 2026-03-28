@@ -41,6 +41,7 @@ export interface AsciiRenderOptions {
   background?: string;
   layout?: AsciiSamplingLayout;
   cache?: Partial<AsciiLookupCacheOptions>;
+  ledMode?: boolean;
 }
 
 export interface AsciiCharacter {
@@ -67,6 +68,7 @@ export interface AsciiRenderResult {
   cellWidth: number;
   cellHeight: number;
   imageData?: ImageData;
+  brightnessGrid?: number[][];
 }
 
 export interface PreparedSamplingLayout {

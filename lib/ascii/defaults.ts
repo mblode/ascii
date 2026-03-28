@@ -114,6 +114,7 @@ export const DEFAULT_RENDER_OPTIONS: Required<
   background: "#000000",
   layout: DEFAULT_SAMPLING_LAYOUT,
   cache: DEFAULT_CACHE_OPTIONS,
+  ledMode: false,
 };
 
 /**

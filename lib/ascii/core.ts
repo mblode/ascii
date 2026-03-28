@@ -1,6 +1,7 @@
 import { getCachedCharacterSet } from "./characters";
 import { applyContrastEnhancement } from "./contrast";
 import { type DEFAULT_RENDER_OPTIONS, mergeOptions } from "./defaults";
+import { renderLedToImageData } from "./led";
 import { createCharacterLookup } from "./lookup";
 import {
   applyBrightnessContrast,
@@ -97,7 +98,7 @@ export const initializePipeline = (
 };
 
 /**
- * Process a single cell and return the best matching character.
+ * Process a single cell and return the best matching character and brightness.
  */
 const processCell = (
   imageData: ImageData,
@@ -108,7 +109,7 @@ const processCell = (
   contrastMultiplier: number,
   globalExponent: number,
   directionalExponent: number
-): string => {
+): { char: string; brightness: number } => {
   const { samplingLayout, lookupFn } = pipeline;
 
   // Sample internal and external vectors
@@ -147,17 +148,22 @@ const processCell = (
     directionalExponent
   );
 
+  // Compute mean brightness from the enhanced vector
+  const brightness =
+    internalVector.reduce((sum, v) => sum + v, 0) / internalVector.length;
+
   // Look up best matching character
-  return lookupFn(internalVector);
+  return { char: lookupFn(internalVector), brightness };
 };
 
 /**
  * Render ASCII grid from ImageData.
+ * Returns both the character grid and a per-cell brightness grid.
  */
 export const renderAsciiGrid = (
   imageData: ImageData,
   options: AsciiRenderOptions = {}
-): string[] => {
+): { grid: string[]; brightnessGrid: number[][] } => {
   const opts = mergeOptions(options);
   const { columns, rows } = calculateDimensions(
     imageData.width,
@@ -183,13 +189,15 @@ export const renderAsciiGrid = (
   const contrastMultiplier = 1 + clampedContrast / 100;
 
   const grid: string[] = [];
+  const brightnessGrid: number[][] = [];
 
   for (let row = 0; row < rows; row++) {
     let rowStr = "";
+    const brightnessRow: number[] = [];
     for (let col = 0; col < columns; col++) {
       const cellX = col * effectiveCellWidth;
       const cellY = row * effectiveCellHeight;
-      const char = processCell(
+      const { char, brightness } = processCell(
         imageData,
         cellX,
         cellY,
@@ -200,11 +208,13 @@ export const renderAsciiGrid = (
         opts.directionalContrastExponent
       );
       rowStr += char;
+      brightnessRow.push(brightness);
     }
     grid.push(rowStr);
+    brightnessGrid.push(brightnessRow);
   }
 
-  return grid;
+  return { grid, brightnessGrid };
 };
 
 /**
@@ -295,11 +305,12 @@ export const renderAscii = (
   );
 
   // Render ASCII grid
-  const grid = renderAsciiGrid(imageData, options);
+  const { grid, brightnessGrid } = renderAsciiGrid(imageData, options);
 
   // Build result
   const result: AsciiRenderResult = {
     grid,
+    brightnessGrid,
     columns,
     rows,
     width,
@@ -310,7 +321,11 @@ export const renderAscii = (
 
   // Optionally render to ImageData
   if (opts.output === "imageData" || opts.output === "both") {
-    result.imageData = renderAsciiToImageData(grid, options);
+    if (opts.ledMode) {
+      result.imageData = renderLedToImageData(brightnessGrid, options);
+    } else {
+      result.imageData = renderAsciiToImageData(grid, options);
+    }
   }
 
   return result;

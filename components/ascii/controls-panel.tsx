@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -96,6 +97,22 @@ export function AsciiControlsPanel({
             Preview/output is capped at 1400px on the longest edge for
             performance.
           </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Display mode</Label>
+          <div>
+            <Button
+              disabled={disabled}
+              onClick={() =>
+                onParametersChange({ ledMode: !parameters.ledMode })
+              }
+              size="sm"
+              variant={parameters.ledMode ? "default" : "outline"}
+            >
+              LED Display
+            </Button>
+          </div>
         </div>
       </div>
     </div>
