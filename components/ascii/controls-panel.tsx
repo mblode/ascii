@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { Label } from "@/components/ui/label";
@@ -20,18 +20,20 @@ export function AsciiControlsPanel({
   renderDimensions,
   disabled,
 }: AsciiControlsPanelProps) {
-  const contrastValue = useMemo(
-    () => [parameters.contrastExponent],
-    [parameters.contrastExponent]
-  );
-  const columnsValue = useMemo(
-    () => [parameters.columns],
-    [parameters.columns]
-  );
+  // Local state for in-flight slider values during drag.
+  // null = not dragging, use prop value. Non-null = dragging, use local value.
+  const [localContrast, setLocalContrast] = useState<number | null>(null);
+  const [localColumns, setLocalColumns] = useState<number | null>(null);
+
+  const displayContrast = localContrast ?? parameters.contrastExponent;
+  const displayColumns = localColumns ?? parameters.columns;
+
+  const contrastValue = useMemo(() => [displayContrast], [displayContrast]);
+  const columnsValue = useMemo(() => [displayColumns], [displayColumns]);
 
   // Calculate rows for display (columns is now the direct control)
   const cellWidth = renderDimensions
-    ? Math.floor(renderDimensions.width / parameters.columns)
+    ? Math.floor(renderDimensions.width / displayColumns)
     : 8;
   const cellHeight = Math.round(cellWidth * 1.75);
   const gridRows = renderDimensions
@@ -59,29 +61,35 @@ export function AsciiControlsPanel({
 
         <div className="space-y-2">
           <Label htmlFor="contrast">
-            Contrast exponent: {parameters.contrastExponent.toFixed(1)}
+            Contrast exponent: {displayContrast.toFixed(1)}
           </Label>
           <Slider
             disabled={disabled}
             id="contrast"
             max={4}
             min={1}
-            onValueChange={([value]) =>
-              onParametersChange({ contrastExponent: value })
-            }
+            onValueChange={([value]) => setLocalContrast(value)}
+            onValueCommit={([value]) => {
+              setLocalContrast(null);
+              onParametersChange({ contrastExponent: value });
+            }}
             step={0.1}
             value={contrastValue}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="columns">Columns: {parameters.columns}</Label>
+          <Label htmlFor="columns">Columns: {displayColumns}</Label>
           <Slider
             disabled={disabled}
             id="columns"
             max={200}
             min={40}
-            onValueChange={([value]) => onParametersChange({ columns: value })}
+            onValueChange={([value]) => setLocalColumns(value)}
+            onValueCommit={([value]) => {
+              setLocalColumns(null);
+              onParametersChange({ columns: value });
+            }}
             step={1}
             value={columnsValue}
           />
@@ -90,8 +98,7 @@ export function AsciiControlsPanel({
             style={{ textWrap: "pretty" }}
           >
             More columns = more detail
-            {gridRows &&
-              `. Output: ${parameters.columns} × ${gridRows} characters`}
+            {gridRows && `. Output: ${displayColumns} × ${gridRows} characters`}
           </p>
           <p className="text-muted-foreground text-xs leading-[1.6]">
             Preview/output is capped at 1400px on the longest edge for
