@@ -7,6 +7,15 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+// Stable keys for slider thumbs — using values as keys causes DOM remounts on every drag tick
+const THUMB_KEYS = [
+  "thumb-0",
+  "thumb-1",
+  "thumb-2",
+  "thumb-3",
+  "thumb-4",
+] as const;
+
 interface SliderProps
   extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   showOrigin?: boolean;
@@ -72,11 +81,11 @@ function Slider({
           <div className="pointer-events-none absolute top-1/2 left-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-foreground/30" />
         )}
       </SliderPrimitive.Track>
-      {values.map((val) => (
+      {values.map((_val, index) => (
         <SliderPrimitive.Thumb
           className="block size-7 shrink-0 rounded-full border border-border bg-white shadow-lg ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus:border-ring focus-visible:outline-hidden focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50"
           data-slot="slider-thumb"
-          key={`thumb-${val}`}
+          key={THUMB_KEYS[index]}
         >
           {showValue && (
             <div className="absolute top-9 left-1/2 h-8 w-fit -translate-x-1/2 text-center text-foreground text-xs">
