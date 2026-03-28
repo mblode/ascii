@@ -13,6 +13,7 @@ export interface AsciiParameters {
   background: string;
   contrastExponent: number;
   columns: number;
+  ledMode: boolean;
 }
 
 const DEFAULT_PARAMETERS: AsciiParameters = {
@@ -20,6 +21,7 @@ const DEFAULT_PARAMETERS: AsciiParameters = {
   background: "#000000",
   contrastExponent: 2,
   columns: 100,
+  ledMode: false,
 };
 
 const MAX_IMAGE_DIMENSION = 1400;
@@ -89,6 +91,7 @@ const toRenderOptions = (
     maxWidth: null,
     sampleCount: 3,
     output: "both",
+    ledMode: params.ledMode,
   };
 };
 
