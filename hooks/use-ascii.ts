@@ -12,6 +12,7 @@ import { useDebounce } from "./use-debounce";
 export interface AsciiParameters {
   foreground: string;
   background: string;
+  brightness: number;
   contrastExponent: number;
   columns: number;
   ledMode: boolean;
@@ -20,6 +21,7 @@ export interface AsciiParameters {
 const DEFAULT_PARAMETERS: AsciiParameters = {
   foreground: "#ffffff",
   background: "#000000",
+  brightness: 0,
   contrastExponent: 2,
   columns: 100,
   ledMode: false,
@@ -84,7 +86,7 @@ const toRenderOptions = (
   return {
     foreground: params.foreground,
     background: params.background,
-    brightness: 0,
+    brightness: params.brightness,
     contrast: 0,
     contrastExponent: Math.max(1, params.contrastExponent),
     directionalContrastExponent: Math.min(
