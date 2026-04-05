@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "online image processor",
     "ASCII rendering algorithm",
   ],
-  authors: [{ name: "Matthew Blode", url: "https://blode.co" }],
+  authors: [{ name: "Matthew Blode", url: "https://matthewblode.com" }],
   creator: "Matthew Blode",
   publisher: "Matthew Blode",
   alternates: {
