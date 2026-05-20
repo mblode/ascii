@@ -1,6 +1,6 @@
 "use client";
 
-import { Images1Icon } from "@fingertip/icons";
+import { Images1Icon } from "blode-icons-react";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageComparison } from "@/components/ui/image-comparison";
@@ -12,6 +12,7 @@ interface CanvasPreviewProps {
   uploadedImage: File | null;
   ditheredImage: ImageData | null;
   previewCanvas: HTMLCanvasElement | null;
+  isLoadingPlaceholder?: boolean;
   isProcessing: boolean;
   showOriginal: boolean;
   onBrowse?: () => void;
@@ -21,6 +22,7 @@ export function CanvasPreview({
   uploadedImage,
   ditheredImage,
   previewCanvas,
+  isLoadingPlaceholder,
   isProcessing,
   showOriginal,
   onBrowse,
@@ -60,6 +62,14 @@ export function CanvasPreview({
     ? { width: ditheredImage.width, height: ditheredImage.height }
     : null;
 
+  if (isLoadingPlaceholder) {
+    return (
+      <div className="flex h-[600px] w-[800px] max-w-[90vw] items-center justify-center">
+        <Skeleton className="h-full w-full rounded-lg" />
+      </div>
+    );
+  }
+
   if (!uploadedImage) {
     return (
       <div className="flex w-full max-w-2xl cursor-pointer items-center justify-center">
@@ -69,22 +79,16 @@ export function CanvasPreview({
             className="h-16 w-16 text-muted-foreground"
           />
           <div className="flex flex-col gap-1">
-            <p
-              className="font-medium text-foreground"
-              style={{ textWrap: "balance" }}
-            >
+            <p className="text-balance font-medium text-foreground">
               Drop an image here
             </p>
-            <p
-              className="text-muted-foreground text-sm leading-[1.6]"
-              style={{ textWrap: "pretty" }}
-            >
+            <p className="text-pretty text-muted-foreground text-sm leading-[1.6]">
               or drag and drop anywhere on this area
             </p>
           </div>
           {onBrowse && (
             <button
-              className="inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-input bg-background px-4 font-medium text-sm shadow-xs transition-[color,box-shadow] hover:bg-accent hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-input bg-background px-4 font-medium text-sm shadow-xs transition-shadow hover:bg-accent hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-[3px] focus-visible:ring-ring/50"
               onClick={handleBrowseClick}
               type="button"
             >

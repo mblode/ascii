@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  BrightnessIcon,
+  ColorSwatchIcon,
+  ContrastIcon,
+  DotGrid3x3Icon,
+} from "blode-icons-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { Label } from "@/components/ui/label";
@@ -20,8 +26,6 @@ export function AsciiControlsPanel({
   renderDimensions,
   disabled,
 }: AsciiControlsPanelProps) {
-  // Local state for in-flight slider values during drag.
-  // null = not dragging, use prop value. Non-null = dragging, use local value.
   const [localBrightness, setLocalBrightness] = useState<number | null>(null);
   const [localEdge, setLocalEdge] = useState<number | null>(null);
   const [localColumns, setLocalColumns] = useState<number | null>(null);
@@ -30,14 +34,10 @@ export function AsciiControlsPanel({
   const displayEdge = localEdge ?? parameters.contrastExponent;
   const displayColumns = localColumns ?? parameters.columns;
 
-  const brightnessValue = useMemo(
-    () => [displayBrightness],
-    [displayBrightness]
-  );
-  const edgeValue = useMemo(() => [displayEdge], [displayEdge]);
-  const columnsValue = useMemo(() => [displayColumns], [displayColumns]);
+  const brightnessValue = [displayBrightness];
+  const edgeValue = [displayEdge];
+  const columnsValue = [displayColumns];
 
-  // Calculate rows for display (columns is now the direct control)
   const cellWidth = renderDimensions
     ? Math.floor(renderDimensions.width / displayColumns)
     : 8;
@@ -49,105 +49,145 @@ export function AsciiControlsPanel({
     : null;
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <ColorPicker
-          disabled={disabled}
-          id="foreground"
-          label="Foreground color"
-          onChange={(value) => onParametersChange({ foreground: value })}
-          value={parameters.foreground}
-        />
+    <div className="space-y-4">
+      <ColorPicker
+        disabled={disabled}
+        icon={
+          <ColorSwatchIcon
+            aria-hidden
+            className="size-4 shrink-0 text-muted-foreground"
+          />
+        }
+        id="foreground"
+        label="Foreground color"
+        onChange={(value) => onParametersChange({ foreground: value })}
+        value={parameters.foreground}
+      />
 
-        <ColorPicker
-          disabled={disabled}
-          id="background"
-          label="Background color"
-          onChange={(value) => onParametersChange({ background: value })}
-          value={parameters.background}
-        />
+      <ColorPicker
+        disabled={disabled}
+        icon={
+          <ColorSwatchIcon
+            aria-hidden
+            className="size-4 shrink-0 text-muted-foreground"
+          />
+        }
+        id="background"
+        label="Background color"
+        onChange={(value) => onParametersChange({ background: value })}
+        value={parameters.background}
+      />
 
-        <div className="space-y-2">
-          <Label htmlFor="brightness">
-            Brightness: {Math.round(displayBrightness)}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-muted-foreground text-sm">
+          <Label className="flex items-center gap-1.5" htmlFor="brightness">
+            <BrightnessIcon
+              aria-hidden
+              className="size-4 shrink-0 text-muted-foreground"
+            />
+            Brightness
           </Label>
-          <Slider
-            disabled={disabled}
-            id="brightness"
-            max={100}
-            min={-100}
-            onValueChange={([value]) => setLocalBrightness(value)}
-            onValueCommit={([value]) => {
-              setLocalBrightness(null);
-              onParametersChange({ brightness: value });
-            }}
-            showOrigin
-            step={5}
-            value={brightnessValue}
-          />
+          <output className="tabular-nums" htmlFor="brightness">
+            {Math.round(displayBrightness)}
+          </output>
         </div>
+        <Slider
+          disabled={disabled}
+          id="brightness"
+          max={100}
+          min={-100}
+          onValueChange={([value]) => {
+            setLocalBrightness(value);
+            onParametersChange({ brightness: value });
+          }}
+          onValueCommit={([value]) => {
+            setLocalBrightness(null);
+            onParametersChange({ brightness: value });
+          }}
+          showOrigin
+          step={5}
+          value={brightnessValue}
+        />
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="edge">
-            Edge sharpening: {displayEdge.toFixed(1)}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-muted-foreground text-sm">
+          <Label className="flex items-center gap-1.5" htmlFor="edge">
+            <ContrastIcon
+              aria-hidden
+              className="size-4 shrink-0 text-muted-foreground"
+            />
+            Edge sharpening
           </Label>
-          <Slider
-            disabled={disabled}
-            id="edge"
-            max={4}
-            min={1}
-            onValueChange={([value]) => setLocalEdge(value)}
-            onValueCommit={([value]) => {
-              setLocalEdge(null);
-              onParametersChange({ contrastExponent: value });
-            }}
-            step={0.1}
-            value={edgeValue}
-          />
+          <output className="tabular-nums" htmlFor="edge">
+            {displayEdge.toFixed(1)}
+          </output>
         </div>
+        <Slider
+          disabled={disabled}
+          id="edge"
+          max={4}
+          min={1}
+          onValueChange={([value]) => {
+            setLocalEdge(value);
+            onParametersChange({ contrastExponent: value });
+          }}
+          onValueCommit={([value]) => {
+            setLocalEdge(null);
+            onParametersChange({ contrastExponent: value });
+          }}
+          step={0.1}
+          value={edgeValue}
+        />
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="columns">Columns: {displayColumns}</Label>
-          <Slider
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-muted-foreground text-sm">
+          <Label className="flex items-center gap-1.5" htmlFor="columns">
+            <DotGrid3x3Icon
+              aria-hidden
+              className="size-4 shrink-0 text-muted-foreground"
+            />
+            Columns
+          </Label>
+          <output className="tabular-nums" htmlFor="columns">
+            {displayColumns}
+          </output>
+        </div>
+        <Slider
+          disabled={disabled}
+          id="columns"
+          max={200}
+          min={40}
+          onValueChange={([value]) => {
+            setLocalColumns(value);
+            onParametersChange({ columns: value });
+          }}
+          onValueCommit={([value]) => {
+            setLocalColumns(null);
+            onParametersChange({ columns: value });
+          }}
+          step={1}
+          value={columnsValue}
+        />
+        {gridRows && (
+          <p className="text-muted-foreground text-sm tabular-nums leading-[1.6]">
+            Output: {displayColumns} &times; {gridRows} characters
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Display mode</Label>
+        <div>
+          <Button
             disabled={disabled}
-            id="columns"
-            max={200}
-            min={40}
-            onValueChange={([value]) => setLocalColumns(value)}
-            onValueCommit={([value]) => {
-              setLocalColumns(null);
-              onParametersChange({ columns: value });
-            }}
-            step={1}
-            value={columnsValue}
-          />
-          <p
-            className="text-muted-foreground text-sm leading-[1.6]"
-            style={{ textWrap: "pretty" }}
+            onClick={() => onParametersChange({ ledMode: !parameters.ledMode })}
+            size="sm"
+            variant={parameters.ledMode ? "default" : "outline"}
           >
-            More columns = more detail
-            {gridRows && `. Output: ${displayColumns} × ${gridRows} characters`}
-          </p>
-          <p className="text-muted-foreground text-xs leading-[1.6]">
-            Preview/output is capped at 1400px on the longest edge for
-            performance.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Display mode</Label>
-          <div>
-            <Button
-              disabled={disabled}
-              onClick={() =>
-                onParametersChange({ ledMode: !parameters.ledMode })
-              }
-              size="sm"
-              variant={parameters.ledMode ? "default" : "outline"}
-            >
-              LED Display
-            </Button>
-          </div>
+            LED Display
+          </Button>
         </div>
       </div>
     </div>

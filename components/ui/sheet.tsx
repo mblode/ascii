@@ -1,8 +1,8 @@
 "use client";
 
-import { CrossLargeIcon } from "@fingertip/icons";
 // biome-ignore lint/performance/noNamespaceImport: Radix UI requires namespace imports
 import * as SheetPrimitive from "@radix-ui/react-dialog";
+import { CrossLargeIcon } from "blode-icons-react";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";

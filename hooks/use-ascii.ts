@@ -23,7 +23,7 @@ const DEFAULT_PARAMETERS: AsciiParameters = {
   background: "#000000",
   brightness: 0,
   contrastExponent: 2,
-  columns: 100,
+  columns: 128,
   ledMode: false,
 };
 
@@ -124,8 +124,32 @@ export function useAscii() {
   const loadRequestIdRef = useRef(0);
   const renderRequestIdRef = useRef(0);
 
-  // Debounce parameters for real-time updates (300ms)
-  const debouncedParams = useDebounce(parameters, 300);
+  const debouncedParams = useDebounce(parameters, 100);
+
+  const placeholderAttempted = useRef(false);
+  const [isLoadingPlaceholder, setIsLoadingPlaceholder] = useState(true);
+
+  useEffect(() => {
+    if (placeholderAttempted.current || uploadedImage) {
+      setIsLoadingPlaceholder(false);
+      return;
+    }
+    placeholderAttempted.current = true;
+
+    const loadPlaceholder = async () => {
+      try {
+        const response = await fetch("/placeholder.jpg");
+        const blob = await response.blob();
+        const file = new File([blob], "placeholder.jpg", { type: blob.type });
+        setUploadedImage(file);
+      } catch {
+        // Silent fallback to empty state
+      } finally {
+        setIsLoadingPlaceholder(false);
+      }
+    };
+    loadPlaceholder();
+  }, [uploadedImage]);
 
   // Load and scale image when a new file is uploaded.
   useEffect(() => {
@@ -251,6 +275,7 @@ export function useAscii() {
     asciiResult,
     ditheredImage,
     asciiGrid: asciiResult?.grid ?? null,
+    isLoadingPlaceholder,
     isProcessing,
     parameters,
     previewCanvas,

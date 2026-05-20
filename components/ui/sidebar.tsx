@@ -1,7 +1,7 @@
 "use client";
 
-import { CrossLargeIcon, SidebarIcon } from "@fingertip/icons";
 import { Slot } from "@radix-ui/react-slot";
+import { CrossLargeIcon, SidebarIcon } from "blode-icons-react";
 import { cva, type VariantProps } from "class-variance-authority";
 // biome-ignore lint/performance/noNamespaceImport: React namespace import needed for ref types
 import * as React from "react";
