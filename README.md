@@ -1,26 +1,24 @@
 # ASCII
 
-A free, fast, client-side tool for rendering images as ASCII and halftone art, with a real-time preview. All processing happens in the browser — images never leave your device.
+Turn any image into ASCII and halftone art, right in your browser.
 
-Live at **[ascii.blode.co](https://ascii.blode.co)**.
+**→ [ascii.blode.co](https://ascii.blode.co)**
 
-## Stack
+Drop in a photo and watch it render into characters in real time. Tune the look until it's exactly right, then download the result. It's free, there's no sign-up, and your images never leave your device — all the processing happens locally in your browser.
 
-- Next.js 16 (App Router), React 19, React Compiler
-- Tailwind CSS v4
-- Radix UI primitives, blode-icons-react
-- Biome (lint + format), Vitest
+## What you can do
 
-## Development
+- **Drag and drop any image** — or click to browse. PNG, JPG, WebP, and more.
+- **See it instantly** — the rendering updates live as you adjust settings.
+- **Pick your colors** — set any foreground and background color.
+- **Dial in the look** — brightness, edge sharpening, and resolution (columns) sliders.
+- **LED display mode** — switch to a square-pixel, dot-matrix style.
+- **Compare** — toggle between your original and the rendered version.
+- **Download as PNG** — high-resolution, ready to use.
 
-```bash
-npm install
-npm run dev          # start dev server
-npm run build        # production build
-npm run lint         # Biome check
-npm run check-types  # TypeScript
-npm run test         # Vitest
-```
+## Private by design
+
+Your images are processed entirely in your browser. Nothing is uploaded to a server, stored, or sent anywhere.
 
 ## License
 
