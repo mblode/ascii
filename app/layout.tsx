@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://ascii.blode.co"),
   title: "ASCII - High-Quality Image Rendering Tool",
   description:
-    "Apply professional ASCII rendering to your images online. Free, fast, client-side image processing tool with real-time preview. Convert images to artistic halftone patterns.",
+    "Apply professional ASCII and halftone rendering to your images online. Free, fast, client-side processing with real-time preview and instant PNG download.",
   keywords: [
     "ASCII",
     "dithering",

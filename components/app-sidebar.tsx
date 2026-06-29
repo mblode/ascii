@@ -4,6 +4,7 @@ import { AsciiControlsPanel } from "@/components/ascii/controls-panel";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -48,6 +49,29 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="hidden px-2 text-muted-foreground text-xs md:flex">
+        <p style={{ textWrap: "pretty" }}>
+          Made by{" "}
+          <a
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+            href="https://matthewblode.com"
+            rel="noopener"
+            target="_blank"
+          >
+            Matthew Blode
+          </a>{" "}
+          with{" "}
+          <a
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+            href="https://ui.blode.co"
+            rel="noopener"
+            target="_blank"
+          >
+            Blode UI
+          </a>
+          .
+        </p>
+      </SidebarFooter>
     </Sidebar>
   );
 }
