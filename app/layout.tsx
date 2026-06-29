@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
+import { CraftedBy } from "@/components/crafted-by";
 import { SidebarProviderWrapper } from "@/components/providers/sidebar-provider-wrapper";
 import "./globals.css";
 
@@ -142,6 +143,11 @@ export default function RootLayout({
       <body className="h-full antialiased">
         <GoogleAnalytics gaId="G-61F273Q9JP" />
         <SidebarProviderWrapper>{children}</SidebarProviderWrapper>
+        <footer className="pointer-events-none fixed right-3 bottom-3 z-40">
+          <div className="pointer-events-auto rounded-full border bg-background/80 px-3 py-1.5 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <CraftedBy />
+          </div>
+        </footer>
       </body>
     </html>
   );

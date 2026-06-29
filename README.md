@@ -23,3 +23,7 @@ Your images are processed entirely in your browser. Nothing is uploaded to a ser
 ## License
 
 [MIT](./LICENSE) © Matthew Blode
+
+---
+
+Crafted by [<img src="https://matthewblode.com/avatar-sm.png" width="20" align="top" />](https://matthewblode.com) [Matthew Blode](https://matthewblode.com)
